@@ -61,6 +61,7 @@ TESTSUITE_AT = \
   pyhook.at \
   koops-parser.at \
   xorg-utils.at \
+  docker-utils.at \
   ignored_problems.at \
   hooklib.at \
   abrt_conf.at

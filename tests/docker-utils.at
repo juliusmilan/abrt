@@ -1,0 +1,76 @@
+# -*- Autotest -*-
+
+AT_BANNER([docker utils lib])
+
+AT_TESTCFUN([container_crash_info_parse_form_json_str],
+        [$DOCKER_UTILS_CFLAGS],
+        [$DOCKER_UTILS_LDFLAGS],
+[[
+#include "libabrt.h"
+#include "dockerd-utils.h"
+
+void test(const char *json_line, const struct container_crash_info *crash_info_exp)
+{
+    struct container_crash_info *crash_info = container_crash_info_parse_form_json_str(json_line);
+
+    if (NULL == crash_info_exp)
+        assert(crash_info == NULL);
+    else
+    {
+        assert(crash_info_exp->pid == crash_info->pid);
+
+        assert(0 == strcmp(crash_info_exp->executable, crash_info->executable));
+        assert(0 == strcmp(crash_info_exp->reason,     crash_info->reason));
+        assert(0 == strcmp(crash_info_exp->backtrace,  crash_info->backtrace));
+
+        // TODO add more asserts and testcases, when struct container_crash_info will contain more
+        // elements
+    }
+
+    container_crash_info_free(crash_info);
+}
+
+int main(void)
+{
+    g_verbose = 3;
+
+    /* invalid jsons, invalid syntax */
+    test("\"ABRT\": []}", NULL);
+    test("{\"ABRT\": []", NULL);
+    test("{ABRT\": []}", NULL);
+    test("{\"ABRT\": {\"pid\": 21,"
+                    " \"executable\": \"/usr/bin/will_python3_raise\","
+                    " \"reason\": \"ZeroDivisionError: division by zero\","
+                    " \"backtrace\": \"will_python3_raise:3\""
+                    "" /* missing '}' */
+         "}", NULL);
+
+    /* invalid jsons, missing mandatory fields */
+    test("[]", NULL);
+    test("{\"ABRT\": []}", NULL);
+    test("{\"ABRT\": {\"pid\": 21,"
+                    " \"executable\": \"/usr/bin/will_python3_raise\","
+                    " \"backtrace\": \"will_python3_raise:3\""
+                    "}"
+         "}", NULL);
+
+    /* valid jsons */
+    // WIP, TODO this one will start failing when new mandatory fields will be added
+    struct container_crash_info crash_info_1 = {
+        .pid        = 21,
+        .executable = "/usr/bin/will_python3_raise",
+        .reason     = "will_python3_raise:3:<module>:ZeroDivisionError: division by zero",
+        .backtrace  = "will_python3_raise:3"
+    };
+    test("{\"ABRT\": {\"pid\": 21,"
+                    " \"executable\": \"/usr/bin/will_python3_raise\","
+                    " \"reason\": \"will_python3_raise:3:<module>:ZeroDivisionError: division by zero\","
+                    " \"backtrace\": \"will_python3_raise:3\""
+                    "}"
+         "}", &crash_info_1);
+
+
+    return EXIT_SUCCESS;
+}
+]])
+

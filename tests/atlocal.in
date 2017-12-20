@@ -17,3 +17,7 @@ LIBS="@LIBS@ @LIBREPORT_LIBS@"
 # compile with xorg-utils lib
 XORG_UTILS_CFLAGS="-I$abs_top_builddir/src/plugins"
 XORG_UTILS_LDFLAGS="$abs_top_builddir/src/plugins/libxorg-utils.a"
+
+# compile with docker-utils lib
+DOCKER_UTILS_CFLAGS="-I$abs_top_builddir/src/plugins @JSON_C_CFLAGS@"
+DOCKER_UTILS_LDFLAGS="$abs_top_builddir/src/plugins/libdockerd-utils.a @JSON_C_LIBS@"
