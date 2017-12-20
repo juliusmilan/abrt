@@ -1,0 +1,3 @@
+PURPOSE of journal-docker-crash-processing
+Description: test for abrt-dump-journal-docker
+Author: Julius Milan <jmilan@redhat.com>

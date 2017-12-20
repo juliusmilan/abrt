@@ -58,6 +58,7 @@ oops-alt-component
 journal-oops-processing
 abrt-dump-journal-core
 journal-xorg-crash-processing
+journal-docker-crash-processing
 abrt-python
 abrt-python3
 python-bindings
